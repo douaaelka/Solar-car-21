@@ -39,25 +39,8 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
     children=[
         html.Br(),
         html.Div(className="row", children=[
-
-            # html.Br([]),html.Br([]),
-
-            # # #SPEED ALERT
-            # html.Div(
-            #     [
-            #         # html.Div(id='alert'),
-            #         dbc.Alert(
-            #         [
-            #             # dbc.PopoverHeader(
-            #             "Optimal speed not respected",
-            #             #),
-            #         ],
-            #         id="alert",
-            #     ),
-            #     ],style={"display": "block"}, className='modal'
-            # ),
             html.Div(
-                className='two columns',
+                className='two columns',style={"margin-left":200},
                 children=[
                 #HOUR
                     html.Div([
