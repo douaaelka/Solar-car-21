@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 from dash.dependencies import Input, Output, State
 import datetime
-import readcontroller
+# import readcontroller
 
 # -*- coding: utf-8 -*-
 
@@ -67,7 +67,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                             id='interval-component',
                             interval=1*1000, # in milliseconds
                             n_intervals=0)
-                            ],style={'color': '#FFFFFF',"margin-right":100},
+                            ],style={'color': '#FFFFFF',"margin-right":60},
                             className='two columns'
                         ),
 
@@ -83,9 +83,9 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                             max=90,
                             value=50,
                             size=200,
-                            label={'label':'Pedal Angle', 'style':{'color':'white','font-size':'10px'}},
+                            label={'label':'Pedal Angle', 'style':{'color':'white','font-size':'20px'}},
                             style={'fontSize':10,"margin-top":50},
-                            color=theme['primary'],
+                            # color=theme['primary'],
                             ),
                         html.Br([]),html.Br([]),
                         #Speed digital
@@ -98,23 +98,23 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                             value=55,
                             size=300,
                             style={'fontSize':20, "margin-left": 50,"margin-right": 50},
-                            label={'label':'Speed', 'style':{'color':'white','font-size':'10px'}},
+                            label={'label':'Speed', 'style':{'color':'white','font-size':'20px'}},
                             color=theme['primary'],
                             ),
                         html.Br([]),html.Br([]),
                         #Battery temperature
-                        daq.Thermometer(
+                        daq.Gauge(
                             id='thermo',
                             min=0,
                             max=100,
                             value=40,
                             scale=1,
-                            # size=100,
-                            label={'label':'Motor temperature', 'style':{'color':'white','font-size':'10px'}},
+                            size=200,
+                            label={'label':'Motor temperature', 'style':{'color':'white','font-size':'20px'}},
                             # labelPosition='bottom',
                             color = theme['primary'],
                             showCurrentValue=True,
-                            style={'fontSize':10, "margin-left": 50, "margin-right": 200},
+                            style={'fontSize':10,"margin-top":50, "margin-left": 10,"margin-right": 50},
                             units="°C",
                         )
                         ],
@@ -154,17 +154,17 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
     )
 
 def update_speed(n):
-    speednumber=20
+    speednumber=50
     SpeedGauge=float(speednumber)
-    # speed = speed.klsreader.py
+    # speed = speed.readcontroller.py
     #Compare with profil de vitesse
-    angle=int(speednumber)/4
-    if int(speednumber)>21.6:
+    angle=int(speednumber)/2
+    if int(angle)>21.6:
         # is_open=True
-        color='danger'
+        color='red'
     else:
         # is_open=False
-        color='dark'
+        color='green'
 
     return SpeedGauge, angle, speednumber, color #,is_open
 
@@ -191,7 +191,7 @@ def update_thermo(n):
     Input('interval-component', 'n_intervals'))
 def update_time(n):
     now = datetime.datetime.now()
-    return now.strftime("%H:%M:%S")
+    return now.strftime("%H:%M")
 
 if __name__ == '__main__':
     app.run_server(debug=True)
