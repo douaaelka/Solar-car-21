@@ -5,19 +5,18 @@ class ControllerData():
     def __init__(self, *packets):
         # packet must be 19 bytes
         for packet in packets:
-
             if self.validateChecksum(packet):
                 self.determinePacketType(packet)
 
     def _calculateCRC(self, data):
         checksum = 0 # checksum is int type
-        for ch in data[:18]:
-            checksum += ord(ch)
+        # for ch in data[:18]:
+        #     checksum += ord(ch)
         return checksum % 256 # ensure that the checksum does not exceed 1 byte
 
     def validateChecksum(self, data):
         # compare received checksum with calculated checksum
-        if self._calculateCRC(data) == unpack('B', data[-1])[0]:
+        if self._calculateCRC(data) == unpack('B',data[-1]))[0]:
             return True
         else:
             # validation will fail if checksum is invalid

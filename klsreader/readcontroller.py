@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 from klsreader.klsreader import KLSReader
 
-commport = 'COM12'
+commport = '/dev/tty.usbserial-1440'
 
 controller = KLSReader(commport)
 

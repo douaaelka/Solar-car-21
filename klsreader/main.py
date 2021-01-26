@@ -161,7 +161,7 @@ def update_speed(n):
 
 def update_thermo(n):
     temp=30
-    #    temp = temp.klsreader.py
+    # temp = temp.readcontroller.py
     if int(temp) >= 20:
         color = 'red'
     elif int(temp) < 20:

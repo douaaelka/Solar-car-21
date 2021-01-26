@@ -1,9 +1,17 @@
 import time
 from pprint import pprint
 from serial import Serial
-import protocol.controllerdata #import *
-import protocol.controllercommand  #import *
+from controllerdata import *
+# import controllercommand  #import *
 from sys import platform
+from struct import *
+
+class ControllerCommand(object):
+
+    def __init__(self):
+        self.a = '\x3A\x00\x3A'
+        self.b = '\x3B\x00\x3B'
+
 
 class ControllerConnector(object):
     def __init__(self, serialport):
@@ -16,7 +24,8 @@ class ControllerConnector(object):
         ser = self.connection
         packets = []
         for command in commands:
-            ser.write(command)
+            ser.write(command.encode())
+            # ser.write(b':\x00:')
             packet = ser.read(19)
             packets.append(packet)
         return packets
@@ -37,7 +46,7 @@ if __name__ == "__main__":
     if platform.startswith("win"):
         serialport = 'COM4'
     else:
-        serialport = '/dev/ttyACM0'
+        serialport = '/dev/tty.usbserial-1440'
 
     controller = KLSReader(serialport)
     print("Connected to motor controller")
@@ -50,4 +59,3 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("Terminating connection")
- 
