@@ -22,6 +22,34 @@ if platform.startswith("win"):
 else:
     serialport = '/dev/tty.usbserial-1440'
 
+class ControllerConnector(object):
+    def __init__(self, serialport):
+        self.serialport = serialport
+
+    def startSerial(self):
+        self.connection = Serial(self.serialport, 19200, timeout=5)
+
+    def getBytes(self, *commands):
+        ser = self.connection
+        packets = []
+        for command in commands:
+            ser.write(command)
+            packet = ser.read(19)
+            packets.append(packet)
+        return packets
+
+class KLSReader(object):
+    def __init__(self, serialport):
+        self.connector = ControllerConnector(serialport)
+        self.connector.startSerial()
+        self.command = ControllerCommand()
+
+    def getData(self):
+        packet_a, packet_b = self.connector.getBytes(self.command.a, self.command.b)
+        data = ControllerData(packet_a, packet_b)
+        return data.__dict__
+        
+controller = KLSReader(serialport)
 
 # from klsreader import *
 
@@ -65,7 +93,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                         #USE INTERVAL: FOR LIVE UPDATES
                         dcc.Interval(
                             id='interval-component',
-                            interval=1*100, # in milliseconds
+                            interval=1*1000, # in milliseconds
                             n_intervals=0)
                             ],style={'color': '#FFFFFF',"margin-right":60},
                             className='two columns'
@@ -147,53 +175,30 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
     Output(component_id='gauge2', component_property='value'),
     Output(component_id='gauge2', component_property='color'),
     Output(component_id='LED1', component_property='value'),
-    ],
+    Output(component_id='thermo', component_property='value'),
+    Output('thermo', 'color'),],
     Input('interval-component', 'n_intervals'),
     )
 
-def update_speed(n):
-    class ControllerConnector(object):
-        def __init__(self, serialport):
-            self.serialport = serialport
 
-        def startSerial(self):
-            self.connection = Serial(self.serialport, 19200, timeout=5)
-
-        def getBytes(self, *commands):
-            ser = self.connection
-            packets = []
-            for command in commands:
-                ser.write(command)
-                packet = ser.read(19)
-                packets.append(packet)
-            return packets
-
-    class KLSReader(object):
-        def __init__(self, serialport):
-            self.connector = ControllerConnector(serialport)
-            self.connector.startSerial()
-            self.command = ControllerCommand()
-
-        def getData(self):
-            packet_a, packet_b = self.connector.getBytes(self.command.a, self.command.b)
-            data = ControllerData(packet_a, packet_b)
-            return data.__dict__
-    controller = KLSReader(serialport)
+def update_value(n):
     print("Connected to motor controller")
     data = controller.getData()
     # pprint(data)
     # time.sleep(1)
     #     # print(Dict)
-    time.sleep(1)
-    print('throttle')
-    speedr=data['throttle']
-    # tempr=data['motorTemp']
-    print(speedr)
-    # print(tempr)
-    speednumber=speedr
+    # time.sleep(1)
+    speed=data['throttle']
+    temp=data['motorTemp']
+    print("sor3a ta9tol")
+    print('-------------------')
+    print(speed)
+    print('-------------------')
+    print("ME UPDATING L7ARARAAAA")
+    print(temp)
+    speednumber=speed
     SpeedGauge=float(speednumber)
     # speed = speed.readcontroller.py
-    print("SIORHGWIOUEGBFIEWGFHULDH")
     angle=int(speednumber)/2
     if int(angle)>21.6:
         # is_open=True
@@ -201,26 +206,14 @@ def update_speed(n):
     else:
         # is_open=False
         color='green'
-
-    return SpeedGauge, angle, speednumber, color #,is_open
-
-
-#Thermometer
-
-@app.callback(
-    [Output(component_id='thermo', component_property='value'),
-    Output('thermo', 'color'),],
-    [Input('interval-component', 'n_intervals')])
-
-def update_thermo(n):
-    temp=29
-    # print("m updating the temp")
-    # temp = temp.readcontroller.py
     if int(temp) >= 20:
-        color = 'red'
+        color1 = 'red'
     elif int(temp) < 20:
-        color = 'blue'
-    return temp, color
+        color1 = 'blue'
+
+    return SpeedGauge, angle, speednumber, color,temp, color1 #,is_open
+
+
 
 
 ##TIME CALLBACK
@@ -229,7 +222,6 @@ def update_thermo(n):
 def update_time(n):
     now = datetime.datetime.now()
     print("m updating the time")
-
     return now.strftime("%H:%M")
 
 if __name__ == '__main__':
