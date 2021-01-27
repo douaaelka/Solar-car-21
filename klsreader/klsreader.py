@@ -5,6 +5,14 @@ from controllerdata import *
 from controllercommand import *
 from sys import platform
 
+# if __name__ == "__main__":
+    # change to the appropriate commport when running as __main__
+if platform.startswith("win"):
+    serialport = 'COM4'
+else:
+    serialport = '/dev/tty.usbserial-1440'
+
+
 class ControllerConnector(object):
     def __init__(self, serialport):
         self.serialport = serialport
@@ -32,12 +40,6 @@ class KLSReader(object):
         data = ControllerData(packet_a, packet_b)
         return data.__dict__
 
-# if __name__ == "__main__":
-    # change to the appropriate commport when running as __main__
-if platform.startswith("win"):
-    serialport = 'COM4'
-else:
-    serialport = '/dev/tty.usbserial-1440'
 
 controller = KLSReader(serialport)
 print("Connected to motor controller")
