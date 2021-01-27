@@ -109,21 +109,21 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                             units=" ",
                             min=0,
                             max=90,
-                            value=50,
+                            value=0,
                             size=200,
                             label={'label':'Pedal Angle', 'style':{'color':'white','font-size':'20px'}},
                             style={'fontSize':10,"margin-top":50},
-                            # color=theme['primary'],
+                            color=theme['primary'],
                             ),
                         html.Br([]),html.Br([]),
                         #Speed digital
                         daq.Gauge(
                             id='gauge',
                             showCurrentValue=True,
-                            units="MPH",
+                            units="Km per h",
                             min=0,
-                            max=200,
-                            value=55,
+                            max=700,
+                            value=0,
                             size=300,
                             style={'fontSize':20, "margin-left": 50,"margin-right": 50},
                             label={'label':'Speed', 'style':{'color':'white','font-size':'20px'}},
@@ -187,31 +187,36 @@ def update_value(n):
     # pprint(data)
     # time.sleep(1)
     #     # print(Dict)
-    # time.sleep(0.1)
-    speed=data['throttle']
+    time.sleep(0.1)
+    # throttle=data['throttle']
     temp=data['motorTemp']
-    print("sor3a ta9tol")
+    rpm=data['rpm']
+    # print("sor3a ta9tol")
     print('-------------------')
-    print(speed)
-    print('-------------------')
-    print("ME UPDATING L7ARARAAAA")
-    print(temp)
-    speednumber=speed
+    print(rpm)
+    # print(throttle)
+    # print('-------------------')
+    # print("ME UPDATING L7ARARAAAA")
+    # print(temp)
+    # print('-------------------')
+    # speednumber=(throttle-18)*260*0.001885*0.5
+    speednumber=rpm/4
     SpeedGauge=float(speednumber)
     # speed = speed.readcontroller.py
-    angle=int(speednumber)/2
-    if int(angle)>21.6:
+    angle=SpeedGauge/6
+    # print(angle)
+    if int(angle)>25:
         # is_open=True
-        color='red'
+        colorangle='red'
     else:
         # is_open=False
-        color='green'
+        colorangle='green'
     if int(temp) >= 20:
         color1 = 'red'
     elif int(temp) < 20:
         color1 = 'blue'
 
-    return SpeedGauge, angle, speednumber, color,temp, color1 #,is_open
+    return SpeedGauge, angle, colorangle, speednumber,temp, color1 #,is_open
 
 
 
