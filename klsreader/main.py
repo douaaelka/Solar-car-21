@@ -187,7 +187,7 @@ def update_value(n):
     # pprint(data)
     # time.sleep(1)
     #     # print(Dict)
-    # time.sleep(1)
+    # time.sleep(0.1)
     speed=data['throttle']
     temp=data['motorTemp']
     print("sor3a ta9tol")
