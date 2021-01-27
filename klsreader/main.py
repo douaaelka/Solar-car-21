@@ -7,7 +7,51 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 from dash.dependencies import Input, Output, State
 import datetime
-# import readcontroller
+import time
+from pprint import pprint
+from serial import Serial
+from controllerdata import *
+from controllercommand import *
+from sys import platform
+
+
+# if __name__ == "__main__":
+    # change to the appropriate commport when running as __main__
+if platform.startswith("win"):
+    serialport = 'COM4'
+else:
+    serialport = '/dev/tty.usbserial-1440'
+
+class ControllerConnector(object):
+    def __init__(self, serialport):
+        self.serialport = serialport
+
+    def startSerial(self):
+        self.connection = Serial(self.serialport, 19200, timeout=5)
+
+    def getBytes(self, *commands):
+        ser = self.connection
+        packets = []
+        for command in commands:
+            ser.write(command)
+            packet = ser.read(19)
+            packets.append(packet)
+        return packets
+
+class KLSReader(object):
+    def __init__(self, serialport):
+        self.connector = ControllerConnector(serialport)
+        self.connector.startSerial()
+        self.command = ControllerCommand()
+
+    def getData(self):
+        packet_a, packet_b = self.connector.getBytes(self.command.a, self.command.b)
+        data = ControllerData(packet_a, packet_b)
+        return data.__dict__
+controller = KLSReader(serialport)
+
+# from klsreader import *
+
 
 # -*- coding: utf-8 -*-
 
@@ -15,7 +59,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # external_stylesheets=['https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css']
 # external_stylesheets-[dbc.themes.DARKLY] or [dbc.themes.BOOTSTRAP]
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],prevent_initial_callbacks=False)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],prevent_initial_callbacks=True)
 
 colors = {
     'background': '#303030',
@@ -48,7 +92,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                         #USE INTERVAL: FOR LIVE UPDATES
                         dcc.Interval(
                             id='interval-component',
-                            interval=1*1000, # in milliseconds
+                            interval=1*10000, # in milliseconds
                             n_intervals=0)
                             ],style={'color': '#FFFFFF',"margin-right":60},
                             className='two columns'
@@ -61,7 +105,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                         daq.Gauge(
                             id='gauge2',
                             showCurrentValue=True,
-                            units="•",
+                            units=" ",
                             min=0,
                             max=90,
                             value=50,
@@ -77,7 +121,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                             showCurrentValue=True,
                             units="MPH",
                             min=0,
-                            max=50,
+                            max=200,
                             value=55,
                             size=300,
                             style={'fontSize':20, "margin-left": 50,"margin-right": 50},
@@ -98,7 +142,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                             color = theme['primary'],
                             showCurrentValue=True,
                             style={'fontSize':10,"margin-top":50, "margin-left": 10,"margin-right": 50},
-                            units="°C",
+                            units=" C",
                         )
                         ],
                         className='row'
@@ -124,8 +168,6 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
         style={'border': 'solid 1px #A2B1C6', 'border-radius': '5px', 'padding': '50px', 'margin-top': '20px'}),
     ])
 
-
-
 ##Gauge callbacks, speed and angle
 @app.callback(
     [Output(component_id='gauge', component_property='value'),
@@ -137,11 +179,15 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
     )
 
 def update_speed(n):
-    speednumber=50
-    SpeedGauge=float(speednumber)
-    # speed = speed.readcontroller.py
-    #Compare with profil de vitesse
+    data = controller.getData()
+    print('throttle')
+    speedr=data['throttle']
+    # tempr=data['motorTemp']
+    print(speedr)
+    # print(tempr)
+    SpeedGauge=float(speedr)
     angle=int(speednumber)/2
+
     if int(angle)>21.6:
         # is_open=True
         color='red'
@@ -149,7 +195,7 @@ def update_speed(n):
         # is_open=False
         color='green'
 
-    return SpeedGauge, angle, speednumber, color #,is_open
+    return SpeedGauge, angle, speedr, color #,is_open
 
 
 #Thermometer
@@ -160,13 +206,14 @@ def update_speed(n):
     [Input('interval-component', 'n_intervals')])
 
 def update_thermo(n):
-    temp=30
-    # temp = temp.readcontroller.py
-    if int(temp) >= 20:
+    data = controller.getData()
+    tempr=data['motorTemp']
+    print(tempr)
+    if int(tempr) >= 20:
         color = 'red'
-    elif int(temp) < 20:
+    elif int(tempr) < 20:
         color = 'blue'
-    return temp, color
+    return tempr, color
 
 
 ##TIME CALLBACK
@@ -174,7 +221,10 @@ def update_thermo(n):
     Input('interval-component', 'n_intervals'))
 def update_time(n):
     now = datetime.datetime.now()
+    print("m updating the time")
+
     return now.strftime("%H:%M")
 
 if __name__ == '__main__':
+    print("m in the dash")
     app.run_server(debug=True)
