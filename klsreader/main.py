@@ -120,7 +120,7 @@ app.layout = html.Div(style={'textAlign': 'center','backgroundColor': theme['bac
                         daq.Gauge(
                             id='gauge',
                             showCurrentValue=True,
-                            units="Km per h",
+                            units="RPM",
                             min=0,
                             max=700,
                             value=0,
@@ -185,13 +185,12 @@ def update_value(n):
     print("Connected to motor controller")
     data = controller.getData()
     # pprint(data)
-    # time.sleep(1)
     #     # print(Dict)
     time.sleep(0.1)
     # throttle=data['throttle']
     temp=data['motorTemp']
     rpm=data['rpm']
-    # print("sor3a ta9tol")
+    print(temp)
     print('-------------------')
     print(rpm)
     # print(throttle)
